@@ -2,6 +2,7 @@ const {sleep} = require('./helpers.js')
 const exec = require('child_process').exec;
 const {chromium} = require('playwright-extra')
 const stealth = require('puppeteer-extra-plugin-stealth')()
+const {getPageToBeReloaded} = require('./helpers.js')
 chromium.use(stealth)
 
 const GOOGLE_CHROME_BINARY = '/usr/bin/google-chrome-stable';
