@@ -1,0 +1,62 @@
+async function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function setPageToBeReloaded(page, value){
+    await page.evaluate((value) => {
+        // Access the custom variable here
+        return sessionStorage.setItem('toBeReloaded', value);
+    }, value);
+}
+
+async function getPageToBeReloaded(page){
+    const isToBeReloaded = await page.evaluate(() => {
+        // Access the custom variable here
+        return sessionStorage.getItem('toBeReloaded');
+    });
+    if(isToBeReloaded==="true"){
+        return true
+    }
+    else{
+        return false
+    }
+}
+
+async function setPageId(page, value){
+    await page.evaluate((value) => {
+        // Access the custom variable here
+        return sessionStorage.setItem('pageId', value);
+    }, value);
+}
+
+async function getPageId(page){
+    const pageId = await page.evaluate(() => {
+        // Access the custom variable here
+        return sessionStorage.getItem('pageId');
+    });
+    if(typeof pageId == "string"){
+        return pageId
+    }
+    else{
+        return "false"
+    }
+}
+
+async function reloadPages(context){
+    var pages = context.pages()
+    await Promise.all(pages.map(async (page) => {
+      if (await getPageToBeReloaded(page)) {
+        await page.reload();
+      }
+      }));
+  }
+
+module.exports = {
+    sleep,
+    execute,
+    setPageToBeReloaded,
+    getPageToBeReloaded,
+    setPageId,
+    getPageId,
+    reloadPages
+}

@@ -1,0 +1,24 @@
+{
+  "name": "cookiekeepalive",
+  "version": "1.0.0",
+  "description": "A playwright browser instance that autorefreshes pages and keeps cookies alive",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bskdany/CookieKeepAlive.git"
+  },
+  "author": "bskdany",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bskdany/CookieKeepAlive/issues"
+  },
+  "homepage": "https://github.com/bskdany/CookieKeepAlive#readme",
+  "dependencies": {
+    "playwright": "^1.39.0",
+    "playwright-extra": "^4.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  }
+}
