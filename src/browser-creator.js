@@ -3,12 +3,20 @@ const exec = require('child_process').exec;
 const {chromium} = require('playwright-extra')
 const stealth = require('puppeteer-extra-plugin-stealth')()
 chromium.use(stealth)
-const {page} = require('./playwright-page.js')
 
 const GOOGLE_CHROME_BINARY = '/usr/bin/google-chrome-stable';
 
 function execute(command, callback){
   exec(command, function(error, stdout, stderr){ callback(stdout); });
+}
+
+async function reloadPages(context){
+  var pages = context.pages()
+  await Promise.all(pages.map(async (page) => {
+    if (await getPageToBeReloaded(page)) {
+      await page.reload();
+    }
+  }));
 }
 
 (async () => {
@@ -25,7 +33,7 @@ function execute(command, callback){
   const defaultPage =  await defaultContext.pages()[0];
   await defaultPage.goto('https://bot.sannysoft.com');
 
-  // setInterval(async () => {
-  //   await reloadPages(defaultContext)
-  // }, 5 * 10 * 1000)
+  setInterval(async () => {
+    await reloadPages(defaultContext)
+  }, 5 * 1000)
 })();
