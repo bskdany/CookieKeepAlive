@@ -2,17 +2,16 @@ const {sleep} = require('./helpers.js')
 const exec = require('child_process').exec;
 const {chromium} = require('playwright-extra')
 const stealth = require('puppeteer-extra-plugin-stealth')()
-const {getPageToBeReloaded} = require('./helpers.js')
+const {getPageToBeReloaded, isRunningInDocker} = require('./helpers.js')
 chromium.use(stealth)
-var config = require('./config.js')
-
-const GOOGLE_CHROME_BINARY = '/usr/bin/google-chrome-stable';
+var config = require('./config.js');
 
 function execute(command, callback){
   exec(command, function(error, stdout, stderr){ callback(stdout); });
 }
 
-async function reloadPages(context){
+async function reloadPages(browser){
+  var context = browser.contexts()[0]
   var pages = context.pages()
   await Promise.all(pages.map(async (page) => {
     if (await getPageToBeReloaded(page)) {
@@ -22,8 +21,14 @@ async function reloadPages(context){
 }
 
 (async () => {
-  // start browser
-  const command = config.chrome_filepath + ' ' + config.chrome_launch_flags
+  runHeadless = config.chrome_use_headless
+  command = config.chrome_filepath + ' ' + config.chrome_launch_flags
+  if (isRunningInDocker()) {
+    console.log('Running inside a Docker container');
+    runHeadless = false
+    command += ' --headless=new'
+  }
+
   execute(command, (stdout) => {
     console.log(stdout);
   });
@@ -31,11 +36,27 @@ async function reloadPages(context){
   await sleep(1000)
 
   const browser = await chromium.connectOverCDP('http://localhost:9222');
-  const defaultContext = browser.contexts()[0];
-  const defaultPage =  await defaultContext.pages()[0];
-  await defaultPage.goto('https://bot.sannysoft.com');
+  if(!browser.isConnected()){
+    console.error("Couldn't not find browser at port 9222, is it running?")
+  }
 
-  setInterval(async () => {
-    await reloadPages(defaultContext)
-  }, config.page_reload_timeout)
+  if(runHeadless){
+    var context = await browser.newContext()
+    var page = await context.newPage()
+   
+  }
+  else{
+    var context = browser.contexts()[0];
+    var page =  context.pages()[0];
+
+  }
+  await page.goto('https://bot.sannysoft.com');
+  await page.screenshot({ path: 'screenshot.png' })
+
+  if(config.to_reload_pages){
+    setInterval(async () => {
+      await reloadPages(browser)
+    }, config.page_reload_timeout)
+  }
+
 })();

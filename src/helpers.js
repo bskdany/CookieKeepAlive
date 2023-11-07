@@ -38,11 +38,20 @@ async function getPageId(page){
     }
 }
 
+function isRunningInDocker() {
+    try {
+      const cgroupContent = fs.readFileSync('/proc/1/cgroup', 'utf8');
+      return cgroupContent.includes('docker');
+    } catch (error) {
+      return false; // Error reading the cgroup file
+    }
+  }
 
 module.exports = {
     sleep,
     setPageToBeReloaded,
     getPageToBeReloaded,
     setPageId,
-    getPageId
+    getPageId,
+    isRunningInDocker
 }
