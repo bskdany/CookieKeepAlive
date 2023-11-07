@@ -36,12 +36,19 @@ async function reloadPages(browser){
   var context = browser.contexts()[0]
   var pages = context.pages()
   var page_reloaded_counter = 0
-  await Promise.all(pages.map(async (page) => {
-    if (await getPageToBeReloaded(page)) {
-      page_reloaded_counter+=1
-      await page.reload();
-    }
-  }));
+  try{
+    await Promise.all(pages.map(async (page) => {
+      if (await getPageToBeReloaded(page)) {
+        page_reloaded_counter+=1
+        await page.reload();
+      }
+    }));
+  }
+  catch{
+    console.log("Execution context destroyed, pages were not reloaded")
+    // await reloadPages(browser)
+  }
+  
   console.log("Succesfully reloaded " + page_reloaded_counter + " pages")
 }
 
@@ -81,10 +88,12 @@ async function reloadPages(browser){
 
   }
 
+
+
+
   if(runHeadless){
     var context = await browser.newContext()
     var page = await context.newPage()
-   
   }
   else{
     var context = browser.contexts()[0];
