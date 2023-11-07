@@ -4,6 +4,7 @@ const {chromium} = require('playwright-extra')
 const stealth = require('puppeteer-extra-plugin-stealth')()
 const {getPageToBeReloaded} = require('./helpers.js')
 chromium.use(stealth)
+var config = require('./config.js')
 
 const GOOGLE_CHROME_BINARY = '/usr/bin/google-chrome-stable';
 
@@ -22,7 +23,7 @@ async function reloadPages(context){
 
 (async () => {
   // start browser
-  const command = GOOGLE_CHROME_BINARY + ' --remote-debugging-port=9222 --no-first-run  --no-default-browser-check 2> browser.log &';
+  const command = config.chrome_filepath + ' ' + config.chrome_launch_flags
   execute(command, (stdout) => {
     console.log(stdout);
   });
@@ -36,5 +37,5 @@ async function reloadPages(context){
 
   setInterval(async () => {
     await reloadPages(defaultContext)
-  }, 5 * 1000)
+  }, config.page_reload_timeout)
 })();
