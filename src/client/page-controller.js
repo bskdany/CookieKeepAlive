@@ -1,7 +1,7 @@
 const {chromium} = require('playwright-extra')
 const stealth = require('puppeteer-extra-plugin-stealth')()
 chromium.use(stealth)
-const {getPageId, setPageId, setPageToBeReloaded, getPageToBeReloaded, sleep} = require('./helpers.js')
+const {getPageId, setPageId, setPageToBeReloaded, getPageToBeReloaded, sleep} = require('../helpers/helpers.js')
 
 async function getDefaultContext(){
     const browser = await chromium.connectOverCDP('http://localhost:9222');
@@ -28,6 +28,20 @@ async function createPage(id, toBeReloaded=false, url = "https://bot.sannysoft.c
         sleep(1000)
         await createPage(id, toBeReloaded, url)
     }
+}
+
+
+async function getDefaultPage(browser){
+	const context = await browser.contexts()[0]
+	if(context){
+		const page = await context.pages()[0]
+		if(page){
+			return page
+		}
+	}
+	var page = await browser.newPage()
+	await setPageToBeReloaded(page, true)
+	return page
 }
 
 async function getPage(id){

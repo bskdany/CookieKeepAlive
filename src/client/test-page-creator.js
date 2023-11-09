@@ -1,23 +1,24 @@
-// const {chromium} = require('playwright-extra')
-// const stealth = require('puppeteer-extra-plugin-stealth')()
-const { setPageToBeReloaded } = require('./helpers.js');
+const { setPageToBeReloaded } = require('../helpers/helpers.js');
 const {getPage} = require('./page-controller.js');
-// chromium.use(stealth)
+
+async function fuckWithNavigation(page){
+    await page.goto("https://google.com")
+    await page.goto('https://bot.sannysoft.com');
+    await page.goto("https://google.com")
+    await page.goto('https://bot.sannysoft.com');
+    await page.goto("https://google.com")
+    await page.goto('https://bot.sannysoft.com');
+    await page.goto("https://google.com")
+    await page.goto('https://bot.sannysoft.com');
+    await page.goto("https://google.com")
+    await page.goto('https://bot.sannysoft.com');
+    await page.goto("https://google.com")
+}
 
 (async () => {
     const page = await getPage("test-id");
     await page.goto('https://bot.sannysoft.com');
-    await page.goto("https://google.com")
-    await page.goto('https://bot.sannysoft.com');
-    await page.goto("https://google.com")
-    await page.goto('https://bot.sannysoft.com');
-    await page.goto("https://google.com")
-    await page.goto('https://bot.sannysoft.com');
-    await page.goto("https://google.com")
-    await page.goto('https://bot.sannysoft.com');
-    await page.goto("https://google.com")
-    await page.goto('https://bot.sannysoft.com');
-    await page.goto("https://google.com")
+    await fuckWithNavigation(page);
     await setPageToBeReloaded(page, true)
-    process.exit()
+    process.exit(0)
 })()

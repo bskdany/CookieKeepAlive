@@ -128,3 +128,6 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+src/server/nohup.out
+src/screenshot.png 
+src/screenshot.png
