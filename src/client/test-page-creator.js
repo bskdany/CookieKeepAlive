@@ -13,10 +13,11 @@ async function fuckWithNavigation(page){
     await page.goto("https://google.com")
     await page.goto('https://bot.sannysoft.com');
     await page.goto("https://google.com")
+    await page.goto('https://bot.sannysoft.com');
 }
 
 (async () => {
-    const page = await getPage("test-id");
+    const page = await getPage("test-id2");
     await page.goto('https://bot.sannysoft.com');
     await fuckWithNavigation(page);
     await setPageToBeReloaded(page, true)

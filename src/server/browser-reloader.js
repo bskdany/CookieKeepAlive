@@ -5,6 +5,7 @@ const {sleep,getPageToBeReloaded} = require('../helpers/helpers.js')
 var config = require('../config.js');
 
 let browser;
+let isPageReloadRunning = false
 
 async function connectToBrowser(){
 	try{
@@ -14,9 +15,12 @@ async function connectToBrowser(){
 	catch(e){
 		console.log("ERROR Browser not found")
 	}
+	await sleep(1000)
+	return await connectToBrowser()
 }
 
 async function reloadPages(){
+	isPageReloadRunning = true
 	try{
 		var context = browser.contexts()[0]
     	var pages = context.pages()
@@ -43,26 +47,24 @@ async function reloadPages(){
       }));
     }
     catch(e){
-		console.log(e)
-		console.log("ERROR Execution context destroyed, pages were not reloaded")
+		// console.log(e)
+		console.log("ERROR Execution context destroyed, not all pages were not reloaded")
 		// browser = await connectToBrowser()
 		await sleep(1000)
 		await reloadPages()
     }
     
     console.log("Succesfully reloaded " + page_reloaded_counter + " pages")
-	await sleep(config.page_reload_timeout)
-	await reloadPages()
+	isPageReloadRunning = false
   }
 
 (async() => {
 	browser = await connectToBrowser()
-	await reloadPages()
-    // if(config.to_reload_pages){
-	// 	setInterval(async () => {
-	// 		(!await reloadPages()){
-	// 			await sleep(1000)
-	// 		}
-	// 	}, config.page_reload_timeout)
-	// }
+    if(config.to_reload_pages){
+		setInterval(async () => {
+			if(!isPageReloadRunning){
+				await reloadPages()
+			}
+		}, config.page_reload_timeout)
+	}
 })()
