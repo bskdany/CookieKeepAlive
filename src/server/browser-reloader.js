@@ -7,17 +7,14 @@ var config = require('../config.js');
 let browser;
 
 async function connectToBrowser(){
-	const browser = await chromium.connectOverCDP('http://localhost:9222');
-	if(browser.isConnected()){
-		console.log("Browser connected at port 9222")
+	try{
+		const browser = await chromium.connectOverCDP('http://localhost:9222');
 		return browser
 	}
-	else{
-		console.error("Couldn't not find browser at port 9222, is it running?")
-		return null
+	catch(e){
+		console.log("ERROR Browser not found")
 	}
 }
-
 
 async function reloadPages(){
 	try{
@@ -25,11 +22,15 @@ async function reloadPages(){
     	var pages = context.pages()
 	}
 	catch(e){
-		console.log(e)
 		console.log("ERROR Couldn't get the contexts or the pages from the browser")
-		browser = await connectToBrowser()
-		await sleep(5000)
+		do{	
+			browser = await connectToBrowser();
+			await sleep(1000);
+		}
+		while(!browser)
+		await sleep(1000)
 		await reloadPages()
+		return
 	}
     
     var page_reloaded_counter = 0
@@ -44,20 +45,24 @@ async function reloadPages(){
     catch(e){
 		console.log(e)
 		console.log("ERROR Execution context destroyed, pages were not reloaded")
-		browser = await connectToBrowser()
-		await sleep(5000)
+		// browser = await connectToBrowser()
+		await sleep(1000)
 		await reloadPages()
     }
     
     console.log("Succesfully reloaded " + page_reloaded_counter + " pages")
+	await sleep(config.page_reload_timeout)
+	await reloadPages()
   }
 
 (async() => {
 	browser = await connectToBrowser()
-
-    if(config.to_reload_pages){
-		setInterval(async () => {
-			await reloadPages()
-		}, config.page_reload_timeout)
-	}
+	await reloadPages()
+    // if(config.to_reload_pages){
+	// 	setInterval(async () => {
+	// 		(!await reloadPages()){
+	// 			await sleep(1000)
+	// 		}
+	// 	}, config.page_reload_timeout)
+	// }
 })()
