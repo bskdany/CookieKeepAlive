@@ -19,7 +19,7 @@ async function fuckWithNavigation(page){
 (async () => {
     const page = await getPage("test-id2");
     await page.goto('https://bot.sannysoft.com');
-    await fuckWithNavigation(page);
+    // await fuckWithNavigation(page);
     await setPageToBeReloaded(page, true)
     process.exit(0)
 })()

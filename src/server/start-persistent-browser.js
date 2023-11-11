@@ -55,7 +55,8 @@ async function runPersistentBrowser(){
 }
 
 (async () => {
-	setInterval(async () => {
-		await runPersistentBrowser()
-	}, 1000);
+	// setInterval(async () => {
+	// 	await runPersistentBrowser()
+	// }, 1000);
+	await runBrowser()
 })();

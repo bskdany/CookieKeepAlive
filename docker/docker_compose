@@ -1,0 +1,6 @@
+version: '3'
+services:
+  cookie-keep-alive:
+    container_name: cookie-keep-alive
+    image: cookie-keep-alive:latest
+    restart: always

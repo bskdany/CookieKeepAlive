@@ -1,0 +1,2 @@
+docker build . -t cookie-keep-alive
+docker stop cookie-keep-alive && docker remove cookie-keep-alive && docker run --name cookie-keep-alive --network host cookie-keep-alive:latest 
