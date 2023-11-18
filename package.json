@@ -19,6 +19,7 @@
   "dependencies": {
     "playwright": "^1.39.0",
     "playwright-extra": "^4.3.6",
+    "pm2": "^5.3.0",
     "puppeteer-extra-plugin-stealth": "^2.11.2"
   }
 }
