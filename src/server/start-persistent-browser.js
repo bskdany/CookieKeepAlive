@@ -1,5 +1,6 @@
-const spawn = require('child_process').exec;
-const net = require('net');
+const {chromium} = require('playwright-extra')
+const stealth = require('puppeteer-extra-plugin-stealth')();
+chromium.use(stealth);
 const {sleep, isRunningInDocker} = require('../helpers/helpers.js')
 var config = require('../config.js');
 var runHeadless = config.chrome_use_headless
@@ -35,15 +36,23 @@ async function runBrowser(){
 	if(runHeadless || isRunningInDocker()){
 		console.log("Running headless browser")
 		runHeadless = true;
-		launch_flags = ' -headless=new ' + launch_flags
 	}
 	else{
 		console.log("Running headed browser")
 	}
 
-	const command = 'nohup ' + config.chrome_filepath + ' ' + launch_flags;
-	console.log("Opening browser")
-	execute(command)
+	const context = await chromium.launchPersistentContext( userDataDir="./chrome-data", {
+        executablePath: '/usr/bin/google-chrome-stable',
+        handleSIGINT: false,
+        headless: runHeadless,
+        args:launch_flags
+    })
+
+
+
+	// const command = 'nohup ' + config.chrome_filepath + ' ' + launch_flags;
+	// console.log("Opening browser")
+	// execute(command)
 	// waiting for the browser to open
 	await sleep(1000)
 }
