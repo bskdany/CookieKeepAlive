@@ -1,0 +1,1 @@
+docker stop persistent-browser && docker remove persistent-browser && docker run --name persistent-browser --network host persistent-browser:latest 

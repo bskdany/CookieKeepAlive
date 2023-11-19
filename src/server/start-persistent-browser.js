@@ -37,7 +37,7 @@ async function runBrowser(){
 		console.log("Running headed browser")
 	}
 
-	const context = await chromium.launchPersistentContext( userDataDir="../chrome-context-data", {
+	const context = await chromium.launchPersistentContext( userDataDir="../data/chrome-context-data", {
 		executablePath: '/usr/bin/google-chrome-stable',
 		handleSIGINT: false,
 		args:launch_flags,
