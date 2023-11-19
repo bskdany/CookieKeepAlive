@@ -1,2 +1,2 @@
-docker run -it --rm --network host --cap-add=SYS_ADMIN cookie-keep-alive /bin/bash 
+docker run -it --rm --network host --cap-add=SYS_ADMIN persistent-browser /bin/bash 
 /usr/bin/google-chrome-stable --headless=new --remote-debugging-port=9222 --disable-gpu --no-default-browser-check --disable-dev-shm-usage

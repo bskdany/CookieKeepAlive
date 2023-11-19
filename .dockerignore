@@ -30,5 +30,10 @@
 **/values.dev.yaml
 **/build
 **/dist
+
 LICENSE
 README.md
+src/testing
+node_modules
+package-lock.json
+test
