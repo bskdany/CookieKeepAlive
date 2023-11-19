@@ -8,8 +8,9 @@ version: '3'
 services:
   persistent-browser:
     container_name: persistent-browser
-    image: cookie-keep-alive:latest
+    image: persistent-browser:latest
     restart: always
+    network_mode: host
 ```
 
 ### How does is work
