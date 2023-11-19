@@ -22,5 +22,7 @@ The page-controller script in src/client acts as an intermediate, calling it wil
 ### Why this project
 There are multiple cases in web automation scenarios when you need a persistent browser that runs 24/7, especially when 2fa is in play and there is a session expiery
 
-<!-- ### Antibot test -->
-<!-- ![bot-test]() -->
+### Antibot test
+![bot-test](https://raw.githubusercontent.com/bskdany/PersistentBrowser/main/src/data/sannysoft.png)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
