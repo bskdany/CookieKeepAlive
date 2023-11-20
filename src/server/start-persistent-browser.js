@@ -32,6 +32,7 @@ async function isPortInUse(port) {
 async function runBrowser(){
 	if(runHeadless || isRunningInDocker()){
 		console.log("Running headless browser")
+		runHeadless = true;
 	}
 	else{
 		console.log("Running headed browser")
@@ -39,9 +40,11 @@ async function runBrowser(){
 
 	const context = await chromium.launchPersistentContext( userDataDir="../data/chrome-context-data", {
 		executablePath: '/usr/bin/google-chrome-stable',
+		headless: runHeadless,
 		handleSIGINT: false,
 		args:launch_flags,
 	})
+
     const page = context.pages()[0];
     await page.goto('https://bot.sannysoft.com')
 }
