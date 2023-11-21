@@ -1,3 +1,4 @@
+const { exec } = require('child_process');
 const net = require('net');
 
 async function sleep(ms) {
@@ -23,15 +24,26 @@ async function getPageToBeReloaded(page){
 }
 
 async function setPageId(page, value){
-    await page.evaluate((value) => {
-        return localStorage.setItem('pageId', value);
-    }, value);
+    try{
+        await page.evaluate((value) => {
+            return localStorage.setItem('pageId', value);
+        }, value);
+    }
+    catch(e){
+        console.log(e)
+    }
 }
 
 async function getPageId(page){
-    const pageId = await page.evaluate(() => {
-        return localStorage.getItem('pageId');
-    });
+    try{
+        const pageId = await page.evaluate(() => {
+            return localStorage.getItem('pageId');
+        });
+    }
+    catch(e){
+        console.log(e)
+    }
+    
     if(typeof pageId == "string"){
         return pageId
     }

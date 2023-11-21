@@ -5,10 +5,9 @@ const {sleep,getPageToBeReloaded, isPortInUse} = require('../helpers/helpers.js'
 const fs = require('fs')
 var config = require('../config.js');
 
-let pages = []
 let isPageReloadRunning = false
 
-async function removeUnusedPortsFromContextMap(){
+async function cleanUnusedPorts(){
 	const portMap = JSON.parse(fs.readFileSync('./port-map.json'))
 	let newPortMap = {};
 	for(context in portMap){
@@ -20,76 +19,51 @@ async function removeUnusedPortsFromContextMap(){
 	if(newPortMap!=portMap){ 
 		fs.writeFileSync('./port-map.json', JSON.stringify(newPortMap, null, 2))
 	}
-
-	// take the ports, make a set and then transform in array
-	return Array.from(new Set(Object.values(newPortMap)))
-}
-
-async function getAllPages(){
-	ports = await removeUnusedPortsFromContextMap()
-	pages = []
-	for(port of ports){
-		const context = await getRemoteContext(port)
-		const page = context.pages()[0]
-		pages.push(page)
-	}
-}
-
-async function getRemoteContext(port){
-	try{
-		const browser = await chromium.connectOverCDP(`http://localhost:${port}`);
-		const context = browser.contexts()[0]
-		return context
-	}
-	catch(e){
-		console.log("ERROR Browser not found")
-		console.log(e)
-	}
-	// await sleep(1000)
-	// return await connectToBrowser()
 }
 
 async function reloadPages(){
 	isPageReloadRunning = true
-	// try{
-	// 	var context = browser.contexts()[0]
-    // 	var pages = context.pages()
-	// }
-	// catch(e){
-	// 	console.log("ERROR Couldn't get the contexts or the pages from the browser")
-	// 	do{	
-	// 		browser = await connectToBrowser();
-	// 		await sleep(1000);
-	// 	}
-	// 	while(!browser)
-	// 	await sleep(1000)
-	// 	await reloadPages()
-	// 	return
-	// }
-    
-    var page_reloaded_counter = 0
-    try{
-      await Promise.all(pages.map(async (page) => {
-        if (await getPageToBeReloaded(page)) {
-          page_reloaded_counter+=1
-          await page.reload();
-        }
-      }));
+
+    var pageReloadCounter = 0
+    try{	
+		const ports = new Set(Object.values(JSON.parse(fs.readFileSync('./port-map.json'))))
+		for(port of ports){
+			try{
+				const browser = await chromium.connectOverCDP(`http://localhost:${port}`);
+				const context = browser.contexts()[0]
+				const page = context.pages()[0]
+				if(await getPageToBeReloaded(page)){
+					await page.reload();
+					pageReloadCounter+=1;
+				}
+			}
+			catch(error){
+				if(error.message.includes("ECONNREFUSED")){
+					console.log(`Can't find context on port ${port}`)
+				}
+				else{
+					console.log(error)
+				}
+				await cleanUnusedPorts()
+			}
+		}
     }
-    catch(e){
-		// console.log(e)
-		console.log("ERROR Execution context destroyed, not all pages were not reloaded")
-		// browser = await connectToBrowser()
+    catch(error){
+		console.log(error)
+		console.log("ERROR Execution context destroyed, not all pages were reloaded")
 		await sleep(1000)
 		await reloadPages()
     }
     
-    console.log("Succesfully reloaded " + page_reloaded_counter + " pages")
+	if(pageReloadCounter>0){
+		console.log("Reloaded " + pageReloadCounter + " pages")
+	}
+
 	isPageReloadRunning = false
   }
 
 (async() => {
-	await getAllPages()
+	console.log("Page reloader started")
     if(config.to_reload_pages){
 		setInterval(async () => {
 			if(!isPageReloadRunning){

@@ -90,7 +90,6 @@ async function getContext(pageId){
 	return await startContext(pageId);
 }
 
-
 module.exports = {
 	getContext
 }
