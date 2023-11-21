@@ -1,10 +1,11 @@
 const {chromium} = require('playwright-extra')
 const stealth = require('puppeteer-extra-plugin-stealth')();
 chromium.use(stealth);
-const {sleep, isRunningInDocker} = require('../helpers/helpers.js')
+const {sleep, isRunningInDocker, getPageId} = require('../helpers/helpers.js')
 var config = require('../config.js');
 const net = require('net');
-const fs = require('fs')
+const fs = require('fs');
+const { url } = require('inspector');
 
 async function isPortInUse(port) {
 	return new Promise((resolve, reject) => {
@@ -30,39 +31,45 @@ async function isPortInUse(port) {
 
 async function startContext(pageId){
 	let runHeadless = false
-	let launch_flags = config.chrome_launch_flags
 	if(config.chrome_use_headless || isRunningInDocker()){
-		console.log("Running headless context")
+		// console.log("Running headless context")
 		runHeadless = true;
 	}
 	else{
-		console.log("Running headed context")
+		// console.log("Running headed context")
 	}
 
-	urlPort = 50000
-	while(await isPortInUse(urlPort)==false){
-		urlPort+=1;
+
+	let urlPort = 10000
+	while(true){
+		if(await isPortInUse(urlPort)){
+			urlPort+=1;
+		}
+		else{
+			break;
+		}
 	}
 
+	let launch_flags = config.chrome_launch_flags;
 	launch_flags.push(`--remote-debugging-port=${urlPort}`)
-	console.log(launch_flags)
+	// console.log(launch_flags)
 
 	let userDataDir = "../data/chrome-context-data/" + pageId; 
-	const context = await chromium.launchPersistentContext( userDataDir=userDataDir, {
+
+	await chromium.launchPersistentContext( userDataDir=userDataDir, {
 		executablePath: '/usr/bin/google-chrome-stable',
 		headless: runHeadless,
 		handleSIGINT: false,
 		handleSIGTERM: false,
 		handleSIGHUP: false,
-		args:launch_flags,
+		args:config.chrome_launch_flags,
 	})
 
-	const page = await context.pages()[0];
-    await page.goto('https://bot.sannysoft.com');
+	saveContextToMap(urlPort, pageId)
 
-	portMap = JSON.parse(fs.readFileSync('./port-map.json'))
-	portMap[urlPort] = pageId;
-	fs.writeFileSync('./port-map.json', JSON.stringify(portMap))
+	// idk why I have to do this
+	launch_flags.pop();
+	launch_flags.pop();
 
 	return {urlPort: urlPort};
 }
@@ -75,13 +82,32 @@ async function startContext(pageId){
 // 	}, 1000, pageId);
 // }
 
-async function getContext(pageId){
+async function removeUnusedPortsFromContextMap(){
 	const portMap = JSON.parse(fs.readFileSync('./port-map.json'))
-	for( port in portMap){
-		if(portMap[port] == pageId & await isPortInUse(port)){
-			return port
+	let newPortMap = {};
+	for(context in portMap){
+		if(await isPortInUse(port)){
+			portMap.push(port);
 		}
 	}
+	if(newPortMap!=portMap){
+		fs.writeFileSync('./port-map.json', JSON.stringify(newPortMap, null, 2))
+	}
+}
+
+
+function saveContextToMap(port, pageId){
+	var pageIdPortMap = JSON.parse(fs.readFileSync('./port-map.json'))
+	pageIdPortMap[pageId] = port;
+	fs.writeFileSync('./port-map.json', JSON.stringify(pageIdPortMap, null, 2))
+}
+
+async function getContext(pageId){
+	const pageIdPortMap = JSON.parse(fs.readFileSync('./port-map.json'))
+	if(pageId in pageIdPortMap && await isPortInUse(pageIdPortMap[pageId])){
+		return {urlPort: pageIdPortMap[pageId]};
+	}
+
 	return await startContext(pageId);
 }
 
