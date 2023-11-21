@@ -2,9 +2,27 @@ const {chromium} = require('playwright-extra')
 const stealth = require('puppeteer-extra-plugin-stealth')()
 chromium.use(stealth)
 const {getPageId, setPageId, setPageToBeReloaded, getPageToBeReloaded, sleep} = require('../helpers/helpers.js')
+const axios = require('axios');
 
-async function getDefaultContext(){
-    const browser = await chromium.connectOverCDP('http://localhost:9222');
+async function getRemoteContext(pageId) {
+  const apiUrl = 'http://localhost:3000/get-page';
+
+  try {
+    const response = await axios.get(apiUrl, {params: {pageId: pageId}});
+    const responseData = response.data;
+
+    console.log('API Response:', responseData);
+
+    return responseData["urlPort"]
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
+async function getContext(pageId){
+    const port = await getRemoteContext(pageId)
+
+    const browser = await chromium.connectOverCDP(`http://localhost:${port}`);
     if(!browser){
         console.log("Can't find browser")
         return null
@@ -13,48 +31,40 @@ async function getDefaultContext(){
     return context;
 }
 
-async function createPage(id, toBeReloaded=false, url = "https://bot.sannysoft.com"){
+async function removePlaceholderPage(context){
+    const pages = await context.pages();
+
+    const page = await context.newPage();
+    if(pages.length>0 && pages[0].url()=="about:blank"){
+        await context.pages()[0].close()
+    }
+
+    return page;
+}
+
+async function initializePage(page, pageId, toBeReloaded=false, url = "https://bot.sannysoft.com"){
     try{
-        context =  await getDefaultContext();
-        const page = await context.newPage();
         await page.goto(url);
         await setPageToBeReloaded(page, toBeReloaded);
-        await setPageId(page, id);
-        console.log("New page is created with id: " + id)
-        return page;
+        await setPageId(page, pageId);
+        console.log("New page is created with id: " + pageId)
+        return page
     }
-    catch{
+    catch(error){
+        console.error(error)
         console.error("Execution context was destroyed when creating a page")
         sleep(1000)
-        await createPage(id, toBeReloaded, url)
+        await initializePage(page, pageId, toBeReloaded, url)
     }
 }
 
 
-async function getDefaultPage(browser){
-	const context = await browser.contexts()[0]
-	if(context){
-		const page = await context.pages()[0]
-		if(page){
-			return page
-		}
-	}
-	var page = await browser.newPage()
-	await setPageToBeReloaded(page, true)
-	return page
-}
 
-async function getPage(id){
-    context = await getDefaultContext();
-    var pages = context.pages()
-    for (const page of pages) {
-        const target_page_id = await getPageId(page);
-        if (target_page_id == id) {
-            console.log("Found existing page with id: " + target_page_id)
-            return page;
-        }
-    }
-    return await createPage(id);
+async function getPage(pageId){
+    const context = await getContext(pageId);
+    page = await removePlaceholderPage(context);
+    page = await initializePage(page, pageId);
+    return page;
 }
 
 module.exports = {

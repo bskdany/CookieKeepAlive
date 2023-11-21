@@ -3,8 +3,8 @@ const {getContext} = require('./start-persistent-context.js');
  const app = express();
 
 // // Define a route that handles the ID and returns the URL
-app.get('/get-page/:id', async (req, res) => {
-  const pageId = req.params.id;
+app.get('/get-page', async (req, res) => {
+  const pageId = req.params.pageId;
 
   // Replace the next line with your own logic to determine the URL based on the ID
 
@@ -14,6 +14,12 @@ app.get('/get-page/:id', async (req, res) => {
     // console.log("got port " + port)
     res.send(await getContext(pageId));
 });
+
+
+app.get('/ping', (req, res) => {
+
+  res.send("Server Online")
+})
 
 // Set the port for the server to listen on
 const PORT = 3000;
