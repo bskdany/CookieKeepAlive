@@ -6,7 +6,6 @@ const axios = require('axios');
 
 async function getRemoteContext(pageId) {
   const apiUrl = 'http://localhost:3000/get-page';
-    console.log(pageId)
   try {
     const response = await axios.get(apiUrl, {params: {pageId: pageId}});
     const responseData = response.data;
@@ -34,27 +33,27 @@ async function getContext(pageId){
 async function removePlaceholderPage(context){
     const pages = await context.pages();
 
-    const page = await context.newPage();
     if(pages.length>0 && pages[0].url()=="about:blank"){
+        const page = await context.newPage();
+        await page.goto("https://bot.sannysoft.com")
         await context.pages()[0].close()
+        return page;
     }
-
-    return page;
+    return pages[0]
+    
 }
 
-async function initializePage(page, pageId, toBeReloaded=false, url = "https://bot.sannysoft.com"){
+async function initializePage(page, pageId, toBeReloaded=false){
     try{
-        await page.goto(url);
         await setPageToBeReloaded(page, toBeReloaded);
         await setPageId(page, pageId);
-        console.log("New page is created with id: " + pageId)
         return page
     }
     catch(error){
         console.error(error)
         console.error("Execution context was destroyed when creating a page")
         await sleep(1000)
-        await initializePage(page, pageId, toBeReloaded, url)
+        await initializePage(page, pageId, toBeReloaded)
     }
 }
 

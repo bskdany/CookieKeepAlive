@@ -51,7 +51,7 @@ async function startContext(pageId){
 
 	let launch_flags = config.chrome_launch_flags;
 	launch_flags.push(`--remote-debugging-port=${urlPort}`)
-	console.log(launch_flags)
+	// console.log(launch_flags)
 
 	let userDataDir = "../data/chrome-context-data/" + pageId; 
 
@@ -86,18 +86,29 @@ async function removeUnusedPortsFromContextMap(){
 	}
 }
 
+function removeContextEntries(pageId, port){
+	var pageIdPortMap = JSON.parse(fs.readFileSync('./port-map.json'))
+	for(id in pageIdPortMap){
+		if(pageIdPortMap[id]==port){
+			delete pageIdPortMap[id]
+		}
+	}
+	fs.writeFileSync('./port-map.json', JSON.stringify(pageIdPortMap, null, 2))
+}
 
 function saveContextToMap(pageId, port){
-	var pageIdPortMap = JSON.parse(fs.readFileSync('./port-map.json'))
+	removeContextEntries(pageId, port);
+	var pageIdPortMap = JSON.parse(fs.readFileSync('./port-map.json'));
 	pageIdPortMap[pageId] = port;
-	fs.writeFileSync('./port-map.json', JSON.stringify(pageIdPortMap, null, 2))
+	fs.writeFileSync('./port-map.json', JSON.stringify(pageIdPortMap, null, 2));
 }
 
 async function getContext(pageId){
 	const pageIdPortMap = JSON.parse(fs.readFileSync('./port-map.json'))
 	if(pageId in pageIdPortMap && await isPortInUse(pageIdPortMap[pageId])){
-		console.log("Found existing context")
-		return {urlPort: pageIdPortMap[pageId]};
+		const urlPort = pageIdPortMap[pageId]
+		console.log(`Found existing context for id ${pageId} running at port ${urlPort}`)
+		return {urlPort: urlPort};
 	}
 
 	return await startContext(pageId);
