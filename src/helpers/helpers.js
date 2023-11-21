@@ -4,13 +4,13 @@ async function sleep(ms) {
 
 async function setPageToBeReloaded(page, value){
     await page.evaluate((value) => {
-        return sessionStorage.setItem('toBeReloaded', value);
+        return localStorage.setItem('toBeReloaded', value);
     }, value);
 }
 
 async function getPageToBeReloaded(page){
     const isToBeReloaded = await page.evaluate(() => {
-        return sessionStorage.getItem('toBeReloaded');
+        return localStorage.getItem('toBeReloaded');
     });
     if(isToBeReloaded==="true"){
         return true
@@ -22,13 +22,13 @@ async function getPageToBeReloaded(page){
 
 async function setPageId(page, value){
     await page.evaluate((value) => {
-        return sessionStorage.setItem('pageId', value);
+        return localStorage.setItem('pageId', value);
     }, value);
 }
 
 async function getPageId(page){
     const pageId = await page.evaluate(() => {
-        return sessionStorage.getItem('pageId');
+        return localStorage.getItem('pageId');
     });
     if(typeof pageId == "string"){
         return pageId

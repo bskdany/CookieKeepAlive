@@ -32,13 +32,12 @@ async function isPortInUse(port) {
 async function startContext(pageId){
 	let runHeadless = false
 	if(config.chrome_use_headless || isRunningInDocker()){
-		// console.log("Running headless context")
+		console.log(`Running new headless context for id ${pageId}`)
 		runHeadless = true;
 	}
 	else{
-		// console.log("Running headed context")
+		console.log(`Running new headed context for id ${pageId}`)
 	}
-
 
 	let urlPort = 10000
 	while(true){
@@ -52,7 +51,7 @@ async function startContext(pageId){
 
 	let launch_flags = config.chrome_launch_flags;
 	launch_flags.push(`--remote-debugging-port=${urlPort}`)
-	// console.log(launch_flags)
+	console.log(launch_flags)
 
 	let userDataDir = "../data/chrome-context-data/" + pageId; 
 
@@ -65,7 +64,7 @@ async function startContext(pageId){
 		args:config.chrome_launch_flags,
 	})
 
-	saveContextToMap(urlPort, pageId)
+	saveContextToMap(pageId, urlPort)
 
 	// idk why I have to do this
 	launch_flags.pop();
@@ -73,14 +72,6 @@ async function startContext(pageId){
 
 	return {urlPort: urlPort};
 }
-
-// async function runPersistentContext(pageId){
-// 	setInterval(async (pageId) => {
-// 		if(!await isPortInUse(9222)){
-// 			await runBrowser();
-// 		}
-// 	}, 1000, pageId);
-// }
 
 async function removeUnusedPortsFromContextMap(){
 	const portMap = JSON.parse(fs.readFileSync('./port-map.json'))
@@ -96,7 +87,7 @@ async function removeUnusedPortsFromContextMap(){
 }
 
 
-function saveContextToMap(port, pageId){
+function saveContextToMap(pageId, port){
 	var pageIdPortMap = JSON.parse(fs.readFileSync('./port-map.json'))
 	pageIdPortMap[pageId] = port;
 	fs.writeFileSync('./port-map.json', JSON.stringify(pageIdPortMap, null, 2))
@@ -105,6 +96,7 @@ function saveContextToMap(port, pageId){
 async function getContext(pageId){
 	const pageIdPortMap = JSON.parse(fs.readFileSync('./port-map.json'))
 	if(pageId in pageIdPortMap && await isPortInUse(pageIdPortMap[pageId])){
+		console.log("Found existing context")
 		return {urlPort: pageIdPortMap[pageId]};
 	}
 

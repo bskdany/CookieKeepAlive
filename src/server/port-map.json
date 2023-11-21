@@ -1,5 +1,7 @@
 {
   "test": 10000,
   "testId2": 10001,
-  "undefined": 10000
+  "undefined": 10000,
+  "test-id1": 10000,
+  "test-id2": 10001
 }

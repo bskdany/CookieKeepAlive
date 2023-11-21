@@ -6,7 +6,7 @@ const axios = require('axios');
 
 async function getRemoteContext(pageId) {
   const apiUrl = 'http://localhost:3000/get-page';
-
+    console.log(pageId)
   try {
     const response = await axios.get(apiUrl, {params: {pageId: pageId}});
     const responseData = response.data;
@@ -53,12 +53,10 @@ async function initializePage(page, pageId, toBeReloaded=false, url = "https://b
     catch(error){
         console.error(error)
         console.error("Execution context was destroyed when creating a page")
-        sleep(1000)
+        await sleep(1000)
         await initializePage(page, pageId, toBeReloaded, url)
     }
 }
-
-
 
 async function getPage(pageId){
     const context = await getContext(pageId);
