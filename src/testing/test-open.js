@@ -1,4 +1,4 @@
-const {getContext} = require('./start-persistent-context.js');
+const {getContext} = require('../server/start-persistent-context.js');
 
 (async() =>{
     const port = await getContext("test")

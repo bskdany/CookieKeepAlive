@@ -4,7 +4,6 @@ config.chrome_filepath = '/usr/bin/google-chrome-stable';
 config.chrome_launch_flags = [
     '--disable-ipc-flooding-protection',
     '--no-default-browser-check',
-    '--start-minimized',
 ];
 config.chrome_use_headless = false
 config.to_reload_pages = true

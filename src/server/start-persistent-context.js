@@ -1,33 +1,9 @@
 const {chromium} = require('playwright-extra')
 const stealth = require('puppeteer-extra-plugin-stealth')();
 chromium.use(stealth);
-const {sleep, isRunningInDocker, getPageId} = require('../helpers/helpers.js')
+const {sleep, isRunningInDocker, getPageId, isPortInUse} = require('../helpers/helpers.js')
 var config = require('../config.js');
-const net = require('net');
 const fs = require('fs');
-const { url } = require('inspector');
-
-async function isPortInUse(port) {
-	return new Promise((resolve, reject) => {
-		const server = net.createServer();
-
-		server.once('error', (err) => {
-			if (err.code === 'EADDRINUSE') {
-				resolve(true);
-			} else {
-				reject(err); // Handle unexpected errors
-			}
-		});
-
-		server.once('listening', () => {
-			server.close();
-			resolve(false);
-		});
-
-		server.listen(port, '0.0.0.0');
-		server.unref(); 
-	});
-}
 
 async function startContext(pageId){
 	let runHeadless = false

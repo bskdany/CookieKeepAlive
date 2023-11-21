@@ -14,7 +14,8 @@ async function getRemoteContext(pageId) {
 
     return responseData["urlPort"]
   } catch (error) {
-    console.error('Error:', error.message);
+        console.error('Error:', error.message); 
+        throw Error("Remote Browser not found")
   }
 }
 
