@@ -29,8 +29,8 @@ const {getPage} = require('./page-controller.js');
 
 ### How does is work
 Two scripts run independently with [pm2]('https://www.npmjs.com/package/pm2):
-1. start-persistent-browser: checks periodically if a browser instance exists, if it doesn't it spawns a playwright-extra persistent context with CDP port 9222 exposed and custom chrome binary
-2. page-reloader: connects to the running brower instance and uses the custom set session storage values in each page to determine if it needs to be reloaded or not
+1. start-server: starts a express server and wait for incoming GET requests that contain a pageId, it then calls a script that opens a new persistent content and applies the id
+2. page-reloader: connects to the running brower instance and uses the custom set local storage values in each page to determine if it needs to be reloaded or not
 
 The page-controller script in src/client acts as an intermediate, calling it will get either a new page or an old page depending on the page custom id. 
 
