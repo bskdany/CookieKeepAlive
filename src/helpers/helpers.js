@@ -6,12 +6,26 @@ async function sleep(ms) {
 }
 
 async function setPageToBeReloaded(page, value){
-    await page.evaluate((value) => {
-        return localStorage.setItem('toBeReloaded', value);
-    }, value);
+    if(page==undefined){
+        throw Error("Page is undefined")
+    }
+    if(await page.url()!="about:blank"){
+        await page.evaluate((value) => {
+            return localStorage.setItem('toBeReloaded', value);
+        }, value);
+    }
+    else{
+        throw Error("Trying to access localStorage of default Page")
+    }
 }
 
 async function getPageToBeReloaded(page){
+    if(page==undefined){
+        throw Error("Page is undefined")
+    }
+    if(await page.url()=="about:blank"){
+        return false
+    }
     const isToBeReloaded = await page.evaluate(() => {
         return localStorage.getItem('toBeReloaded');
     });
@@ -53,14 +67,8 @@ async function getPageId(page){
 }
 
 function isRunningInDocker() {
-    try {
-      const cgroupContent = fs.readFileSync('/proc/1/cgroup', 'utf8');
-      return cgroupContent.includes('docker');
-    } catch (error) {
-      return false; // Error reading the cgroup file
-    }
-  }
-
+    return process.env.DOCKER_CONTAINER === 'true';
+}
 
 async function isPortInUse(port) {
 	return new Promise((resolve, reject) => {

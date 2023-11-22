@@ -1,8 +1,8 @@
 module.exports = {
     apps: [
       {
-        name: 'browser',
-        script: 'src/server/start-persistent-browser.js',
+        name: 'server',
+        script: './server-start.js',
         instances: 1,
         autorestart: true,
         watch: false,
@@ -10,7 +10,7 @@ module.exports = {
       },
       {
         name: 'page-reloader',
-        script: 'src/server/page-reloader.js',
+        script: './page-reloader.js',
         instances: 1,
         autorestart: true,
         watch: false,

@@ -5,7 +5,7 @@ config.chrome_launch_flags = [
     '--disable-ipc-flooding-protection',
     '--no-default-browser-check',
 ];
-config.chrome_use_headless = false
+config.runHeadless = false
 config.to_reload_pages = true
 config.page_reload_timeout = 1000 * 5  // in ms
 

@@ -6,8 +6,8 @@ var config = require('../config.js');
 const fs = require('fs');
 
 async function startContext(pageId){
-	let runHeadless = false
-	if(config.chrome_use_headless || isRunningInDocker()){
+	let runHeadless = config.runHeadless;
+	if(runHeadless || isRunningInDocker()){
 		console.log(`Running new headless context for id ${pageId}`)
 		runHeadless = true;
 	}
@@ -22,6 +22,9 @@ async function startContext(pageId){
 		}
 		else{
 			break;
+		}
+		if(urlPort>15000){
+			console.log("Something went wrong when tryin to get free port for the browser")
 		}
 	}
 

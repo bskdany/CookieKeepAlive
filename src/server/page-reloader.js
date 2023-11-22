@@ -17,6 +17,7 @@ async function cleanUnusedPorts(){
 		}
 	}
 	if(newPortMap!=portMap){ 
+		console.log("Cleaned port map from unused ports")
 		fs.writeFileSync('./port-map.json', JSON.stringify(newPortMap, null, 2))
 	}
 }
@@ -24,17 +25,20 @@ async function cleanUnusedPorts(){
 async function reloadPages(){
 	isPageReloadRunning = true
 
-    var pageReloadCounter = 0
-    try{	
+	try{	
 		const ports = new Set(Object.values(JSON.parse(fs.readFileSync('./port-map.json'))))
-		for(port of ports){
+		ports.forEach(async(port) => {
 			try{
 				const browser = await chromium.connectOverCDP(`http://localhost:${port}`);
 				const context = browser.contexts()[0]
 				const page = context.pages()[0]
-				if(await getPageToBeReloaded(page)){
+				const toReload = await getPageToBeReloaded(page)
+				if(toReload){
 					await page.reload();
-					pageReloadCounter+=1;
+					console.log(`Reloaded page at port ${port}`)
+				}
+				else{
+					console.log(`Skipped page reload for port ${port}`)
 				}
 			}
 			catch(error){
@@ -45,9 +49,12 @@ async function reloadPages(){
 					console.log(error)
 				}
 				await cleanUnusedPorts()
+				await sleep(1000)
+				await reloadPages()
 			}
-		}
+		});
     }
+
     catch(error){
 		console.log(error)
 		console.log("ERROR Execution context destroyed, not all pages were reloaded")
@@ -55,10 +62,6 @@ async function reloadPages(){
 		await reloadPages()
     }
     
-	if(pageReloadCounter>0){
-		console.log("Reloaded " + pageReloadCounter + " pages")
-	}
-
 	isPageReloadRunning = false
   }
 

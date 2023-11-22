@@ -5,8 +5,10 @@ const {getContext} = require('./start-persistent-context.js');
 // // Define a route that handles the ID and returns the URL
 app.get('/get-page', async (req, res) => {
     const pageId = req.query.pageId;
-
-    res.send(await getContext(pageId));
+    console.log(`Requested page with id ${pageId}`)
+    const contextPort = await getContext(pageId);
+    console.log(`For page id ${pageId} got context port ${contextPort.urlPort}`)
+    res.send(contextPort);
 });
 
 

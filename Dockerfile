@@ -1,6 +1,7 @@
 FROM node:latest
 
 ENV user puppy
+ENV DOCKER_CONTAINER=true
 
 RUN useradd -m -d /home/${user} ${user} && \
     chown -R ${user} /home/${user}  && \
@@ -29,5 +30,9 @@ RUN ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
 
 COPY . .
 
+WORKDIR src/server/
+RUN chown -R ${user} /home/${user}/app
+
 USER ${user}
+
 CMD ["pm2-runtime", "start", "ecosystem.config.js"]
