@@ -1,5 +1,5 @@
-## CookieKeepAlive
-A playwright browser instance that autorefreshes pages and keeps cookies alive
+## Persistent Browser
+A playwright browser instance that autorefreshes pages and keeps a session alive
 
 ### How to
 The easiest way to deploy the browser is docker
