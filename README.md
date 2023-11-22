@@ -13,6 +13,20 @@ services:
     network_mode: host
 ```
 
+Then run test script in src/client/
+```
+const { setPageToBeReloaded, sleep } = require('../helpers/helpers.js');
+const {getPage} = require('./page-controller.js');
+
+(async () => {
+    const page = await getPage("test-id");
+    await setPageToBeReloaded(page, true)
+ 
+    await page.screenshot({ path: '../media/sannysoft.png' });
+    process.exit(0)
+})()
+```
+
 ### How does is work
 Two scripts run independently with [pm2]('https://www.npmjs.com/package/pm2):
 1. start-persistent-browser: checks periodically if a browser instance exists, if it doesn't it spawns a playwright-extra persistent context with CDP port 9222 exposed and custom chrome binary
