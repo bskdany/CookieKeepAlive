@@ -7,19 +7,14 @@ var config = require('../config.js');
 
 let isPageReloadRunning = false
 
-async function cleanUnusedPorts(){
-	const portMap = JSON.parse(fs.readFileSync('./port-map.json'))
-	let newPortMap = {};
-	for(context in portMap){
-		port = portMap[context]
-		if(await isPortInUse(port)){
-			newPortMap[context] = port;			
+async function cleanUnusedPort(port){
+	var portMap = JSON.parse(fs.readFileSync('./port-map.json'))
+	for(key of Object.keys(portMap)){
+		if(portMap[key]==port){
+		  delete portMap[key]
 		}
 	}
-	if(newPortMap!=portMap){ 
-		console.log("Cleaned port map from unused ports")
-		fs.writeFileSync('./port-map.json', JSON.stringify(newPortMap, null, 2))
-	}
+	fs.writeFileSync('./port-map.json', JSON.stringify(portMap, null, 2))
 }
 
 async function reloadPages(){
@@ -44,13 +39,13 @@ async function reloadPages(){
 			catch(error){
 				if(error.message.includes("ECONNREFUSED")){
 					console.log(`Can't find context on port ${port}`)
+					await cleanUnusedPort(port)
 				}
 				else{
 					console.log(error)
+					await sleep(1000)
+					await reloadPages()
 				}
-				await cleanUnusedPorts()
-				await sleep(1000)
-				await reloadPages()
 			}
 		});
     }
