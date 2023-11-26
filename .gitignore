@@ -132,3 +132,5 @@ src/server/nohup.out
 src/screenshot.png 
 src/screenshot.png
 src/data/chrome-context-data
+src/database/browser.db
+src/data

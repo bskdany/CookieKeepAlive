@@ -1,5 +1,5 @@
-const { setPageToBeReloaded, sleep } = require('../helpers/helpers.js');
-const {getPage} = require('./page-controller.js');
+const {sleep } = require('../helpers/helpers.js');
+const {getPage, returnPage} = require('./page-controller.js');
 
 async function fuckWithNavigation(page){
     await page.goto("https://google.com")
@@ -19,13 +19,8 @@ async function fuckWithNavigation(page){
 (async () => {
     const page = await getPage("test-id");
     const page1 = await getPage("test-id2");
-    await setPageToBeReloaded(page, true)
-    await setPageToBeReloaded(page1, true)
-
-    await fuckWithNavigation(page);
-    await fuckWithNavigation(page1);
-    
-    // await setPageToBeReloaded(page, true)
+    await returnPage("test-id")
+    await returnPage("test-id2")
     // await page.screenshot({ path: '../media/sannysoft.png' });
     process.exit(0)
 })()

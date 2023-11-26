@@ -1,16 +1,22 @@
 const express = require('express');
 const {getContext} = require('./start-persistent-context.js');
- const app = express();
+const {makeNotReloadable, makeReloadable} = require('../database/db-controller.js')
+const app = express();
 
-// // Define a route that handles the ID and returns the URL
 app.get('/get-page', async (req, res) => {
     const pageId = req.query.pageId;
     console.log(`Requested page with id ${pageId}`)
     const contextPort = await getContext(pageId);
-    console.log(`For page id ${pageId} got context port ${contextPort.urlPort}`)
+    console.log(`For page id ${pageId} got context port ${contextPort.port}`)
     res.send(contextPort);
 });
 
+app.get('/return-page', async (req, res) => {
+  const pageId = req.query.pageId;
+  console.log(`Returned page with id ${pageId}`)
+  makeReloadable(pageId)
+  res.sendStatus(200)
+});
 
 app.get('/ping', (req, res) => {
   res.send("Server Online")
